@@ -212,6 +212,11 @@ class CountryMap:
                 return profile[speed]
         else:
             return DEFAULT_PETROL
+    
+    def OptimumConsumption(self):
+        if self.car in CAR_PETROL_PROFILE:
+            return min(CAR_PETROL_PROFILE[self.car])
+        return DEFAULT_PETROL
             
     def GenerateRandomTraficReport(self):
         """
@@ -314,21 +319,21 @@ class CountryMap:
 
 
     def LoadMap2(self,filename=DEFAULT_DB_FILE):
-		for line in open(filename):
-			junc = line.strip().split(",")
-			junc[0] = float(junc[0])
-			junc[1] = float(junc[1])
-			j = junction(junc[0],junc[1])
-			raw_links = junc[2].split("#")
-			if raw_links == ['']:
-				raw_links = []
-				#print links
-			interpreted_links = [[int(i) for i in l.split("@")] for l in raw_links]
-			j.links = [link(l[0],l[1],l[2]) for l in interpreted_links]
-			self.junctions.append(j)
-		self.GenerateRandomTraficReport()
-		self.MapStat()
-		
+        for line in open(filename):
+            junc = line.strip().split(",")
+            junc[0] = float(junc[0])
+            junc[1] = float(junc[1])
+            j = junction(junc[0],junc[1])
+            raw_links = junc[2].split("#")
+            if raw_links == ['']:
+                raw_links = []
+                #print links
+            interpreted_links = [[int(i) for i in l.split("@")] for l in raw_links]
+            j.links = [link(l[0],l[1],l[2]) for l in interpreted_links]
+            self.junctions.append(j)
+        self.GenerateRandomTraficReport()
+        self.MapStat()
+    
     def LoadMap(self,filename=DEFAULT_PICKLED_FILE):
         f = open(filename)
         print "Loading pickled file.  This may take awhile..."
@@ -337,7 +342,7 @@ class CountryMap:
         self.GenerateRandomTraficReport()
         self.MapStat()
 
-			  
+
     def MapStat(self):
         values = self.junctions
         branching = [len(v.links) for v in values]

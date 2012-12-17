@@ -60,7 +60,7 @@ class ProblemAction:
         @return: Negative if self < other, zero if self == other and strictly 
         positive if self > other.
         '''
-        raise NotImplementedError()
+        return self.cost - other.cost
     
     def __hash__(self):
         '''
@@ -68,13 +68,13 @@ class ProblemAction:
         and dictionaries.
         @return: The hash value of the action.
         '''
-        raise NotImplementedError()
+        return int(self.cost * 1000)
     
     def __str__(self):
         '''
         @return: The string representation of this object when *str* is called.
         '''
-        raise NotImplementedError()
+        return str(self.cost)
     
     def __repr__(self):
         '''

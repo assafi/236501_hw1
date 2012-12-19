@@ -3,14 +3,14 @@ Created on Dec 17, 2012
 
 @author: Assaf
 '''
-import unittest
 from src.osm_utils4 import CountryMap, DEFAULT_DB_FILE
-from src.sol.route_problem import RouteProblemState
 from src.problem import ProblemAction
-from src.problem_agent import ShortestRouteAgent, FastestRouteAgent,\
+from src.problem_agent import ShortestRouteAgent, FastestRouteAgent, \
     FuelSavingRouteAgent, HybridRouteAgent
-from src.sol.costs import shortestRouteCost, fastestRouteCost,\
-    fuelSavingRouteCost
+from src.sol.costs import ShortestActionFactory, FastestActionFactory, \
+    FuelSavingActionFactory, HybridActionFactory
+from src.sol.route_problem import RouteProblemState
+import unittest
 
 class Test(unittest.TestCase):
 
@@ -26,7 +26,7 @@ class Test(unittest.TestCase):
 
     def testShortestRoute(self):        
         problem_state = RouteProblemState(self.problem[0],self.map,\
-                                          shortestRouteCost,self.problem[1])
+                                          ShortestActionFactory(),self.problem[1])
         agent = ShortestRouteAgent()
         answer = agent.solve(problem_state)
         for n in answer:
@@ -34,7 +34,7 @@ class Test(unittest.TestCase):
             
     def testFastestRoute(self):
         problem_state = RouteProblemState(self.problem[0],self.map,\
-                                          fastestRouteCost,self.problem[1])
+                                          FastestActionFactory(),self.problem[1])
         agent = FastestRouteAgent()
         answer = agent.solve(problem_state)
         for n in answer:
@@ -42,7 +42,8 @@ class Test(unittest.TestCase):
             
     def testFuelSavingRoute(self):
         problem_state = RouteProblemState(self.problem[0],self.map,\
-                                          fuelSavingRouteCost,self.problem[1])
+                                          FuelSavingActionFactory(self.map),\
+                                          self.problem[1])
         agent = FuelSavingRouteAgent()
         answer = agent.solve(problem_state)
         for n in answer:
@@ -52,13 +53,10 @@ class Test(unittest.TestCase):
         alpha = 0.3
         beta = 0.3
         
-        def hybridCost(aLink, route_map):
-            return ProblemAction(alpha * shortestRouteCost(aLink, route_map).getCost() + \
-                beta * fastestRouteCost(aLink, route_map).getCost() + \
-                (1 - alpha - beta) * fuelSavingRouteCost(aLink, route_map).getCost())
-        
         problem_state = RouteProblemState(self.problem[0],self.map,\
-                                          hybridCost,self.problem[1])
+            HybridActionFactory(alpha,beta,ShortestActionFactory(),\
+                                FastestActionFactory(),FuelSavingActionFactory(self.map))\
+                                          ,self.problem[1])
         
         agent = HybridRouteAgent(alpha,beta)
         answer = agent.solve(problem_state)
@@ -68,5 +66,5 @@ class Test(unittest.TestCase):
             
         
 if __name__ == "__main__":
-    #import sys;sys.argv = ['', 'Test.testShortestRoute']
+    import sys;sys.argv = ['', 'Test.testFuelSavingRoute']
     unittest.main()

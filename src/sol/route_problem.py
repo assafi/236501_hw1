@@ -4,7 +4,6 @@ Created on Dec 16, 2012
 @author: Assaf
 '''
 from src.problem import ProblemState
-from collections import defaultdict
 
 class RouteProblemState(ProblemState):
     '''
@@ -30,7 +29,7 @@ class RouteProblemState(ProblemState):
         '''
         currentJunc = self.route_map.GetJunction(self.junction_key)
         l = map(lambda l: 
-                   (self.actionFactory(l,self.route_map),
+                   (self.actionFactory.create(l),
                     RouteProblemState(l.target,self.route_map,self.actionFactory,self.goal_junction))
                     ,currentJunc.links)
         d = {}

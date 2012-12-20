@@ -41,9 +41,9 @@ class Test(unittest.TestCase):
             print(n)
             
     def testFuelSavingRoute(self):
-        problem_state = RouteProblemState(self.problem[0],self.map,\
+        problem_state = RouteProblemState(0,self.map,\
                                           FuelSavingActionFactory(self.map),\
-                                          self.problem[1])
+                                          40)
         agent = FuelSavingRouteAgent()
         answer = agent.solve(problem_state)
         for n in answer:
@@ -66,5 +66,5 @@ class Test(unittest.TestCase):
             
         
 if __name__ == "__main__":
-    import sys;sys.argv = ['', 'Test.testFuelSavingRoute']
+#    import sys;sys.argv = ['Test.testFuelSavingRoute']
     unittest.main()

@@ -7,7 +7,7 @@ from src.osm_utils4 import CountryMap, DEFAULT_DB_FILE
 from src.problem import ProblemAction
 from src.problem_agent import ShortestRouteAgent, FastestRouteAgent, \
     FuelSavingRouteAgent, HybridRouteAgent
-from src.sol.costs import ShortestActionFactory, FastestActionFactory, \
+from src.sol.actionFactories import ShortestActionFactory, FastestActionFactory, \
     FuelSavingActionFactory, HybridActionFactory
 from src.sol.route_problem import RouteProblemState
 import unittest

@@ -22,7 +22,7 @@ class FuelSavingActionFactory(ActionFactory):
     def __init__(self, route_map):
         self.PetrolConsumption = route_map.PetrolConsumption
     def create(self, aLink):
-        return ProblemAction(self.PetrolConsumption(aLink.speed) * \
+        return ProblemAction(1.0/self.PetrolConsumption(aLink.speed) * \
                                   aLink.distance)
             
 class HybridActionFactory(ActionFactory):

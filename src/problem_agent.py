@@ -1,4 +1,5 @@
 from src.search.astar import AStar
+from src.osm_utils4 import *
 NO_LIMIT = -1
 
 class ProblemAgent ():
@@ -52,13 +53,22 @@ class FastestRouteHeuristics():
         return route_problem_state.route_map.\
             JunctionDistance(route_problem_state.junction_key,\
                              route_problem_state.goal_junction) / 120.0
-
+def OptimumConsumption(map):
+        if map.car in CAR_PETROL_PROFILE:
+            min = 0
+            for val in (CAR_PETROL_PROFILE[map.car]):
+                if ((min == 0 or val<=min) and val != 0):
+                    min = val
+            return min
+        return DEFAULT_PETROL
+    
 class FuelSavingRouteHeuristics():
     def evaluate(self,route_problem_state):
         return route_problem_state.route_map.\
             JunctionDistance(route_problem_state.junction_key,\
                              route_problem_state.goal_junction) * \
-                             route_problem_state.route_map.OptimumConsumption()
+                             1.0/OptimumConsumption(route_problem_state.route_map)
+                             #route_problem_state.route_map.OptimumConsumption()
                              
 class HybridHeuristics():
     def __init__(self,alpha,beta):

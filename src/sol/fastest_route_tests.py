@@ -7,8 +7,7 @@ import unittest
 from src.osm_utils4 import CountryMap, DEFAULT_DB_FILE
 import os
 from src.sol.route_problem import RouteProblemState
-from src.problem import ProblemAction
-
+from src.sol.roadNet_Action import RoadNet_Action
 class Test(unittest.TestCase):
     
     def setUp(self):
@@ -25,7 +24,7 @@ class Test(unittest.TestCase):
     def testRouteProblemState(self):
         
         def simpleCostActionFactory(aLink):
-            return ProblemAction(2)
+            return RoadNet_Action(2,aLink.target)
         
         start = RouteProblemState(0,self.map,simpleCostActionFactory)
         neighbors = start.getSuccessors()

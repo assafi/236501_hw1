@@ -150,6 +150,7 @@ class GraphSearch (SearchAlgorithm):
             node = open_states.pop()
             
             if node.depth > self.max_depth:
+                print 'bug?'
                 continue
             
             if node.state.isGoal(): 
@@ -158,5 +159,6 @@ class GraphSearch (SearchAlgorithm):
             if (node.state not in closed_states) or (node.path_cost < closed_states[node.state]):
                 closed_states[node.state] = node.path_cost
                 open_states.extend(node.expand())
-                
+        
+        print 'failed to find'
         return None

@@ -4,7 +4,6 @@ Created on Dec 17, 2012
 @author: Assaf
 '''
 from src.osm_utils4 import CountryMap, DEFAULT_DB_FILE
-from src.problem import ProblemAction
 from src.problem_agent import ShortestRouteAgent, FastestRouteAgent, \
     FuelSavingRouteAgent, HybridRouteAgent
 from src.sol.actionFactories import ShortestActionFactory, FastestActionFactory, \
@@ -12,7 +11,6 @@ from src.sol.actionFactories import ShortestActionFactory, FastestActionFactory,
 from src.sol.route_problem import RouteProblemState
 import unittest
 import time
-import random
 import math
 
 MAX = 100
@@ -26,7 +24,6 @@ class Test(unittest.TestCase):
         self.map = CountryMap()
         self.map.LoadMap2("../../"+DEFAULT_DB_FILE)
         self.map.car = car1
-        #random.seed(42)
         self.problem = [0,0]#only decleration...
 
     def tearDown(self):
@@ -49,6 +46,16 @@ class Test(unittest.TestCase):
             header.append(name+' solutionDistance')
             header.append(name+' cpuTime')
             
+        def writeLineToCsv(line,file2):
+            #print line
+            for st in line:
+                #print st
+                #print type(st)
+                file2.write(str(st))
+                file2.write(',')
+            file2.write('\n')
+            file2.flush()    
+        '''
         def writeToCsv(results):
             file2 = open("results.csv", "w")
             for line in results:
@@ -59,9 +66,10 @@ class Test(unittest.TestCase):
                     file2.write(str(st))
                     file2.write(',')
                 file2.write('\n')
-            file2.close()
+        '''            
         
         #prepare written csv header
+        file2 = open("results.csv", "w")
         header = list()
         header.append('test#,src,dest,airDistance')
         add(header,'shortest')
@@ -70,8 +78,7 @@ class Test(unittest.TestCase):
         add(header,'economic2')
         add(header,'hybrid1')
         add(header,'hybrid2')
-        results = list()
-        results.append(header)
+        writeLineToCsv(header, file2)
         for i in xrange(MAX):
             self.problem = self.map.GenerateProblem()
             
@@ -80,6 +87,7 @@ class Test(unittest.TestCase):
                 self.problem = self.map.GenerateProblem()
             src = self.problem[0]
             dest = self.problem[1]
+            print '({0},{1})'.format(src,dest)
             result = list()
             result.append(i)
             result.append(src)
@@ -107,9 +115,10 @@ class Test(unittest.TestCase):
             self.appendResult(result,self.findHybrid(0.3,0.3))
             
             print i
-            results.append(result)
+            writeLineToCsv(result, file2)
         print 'done'
-        writeToCsv(results)
+        file2.close()
+        #writeToCsv(results)
     def printResult(self,result):
         if (result != None):
             aerielDistance = self.map.JunctionDistance(self.problem[0],self.problem[1]) 

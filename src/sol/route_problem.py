@@ -33,8 +33,16 @@ class RouteProblemState(ProblemState):
                     RouteProblemState(l.target,self.route_map,self.actionFactory,self.goal_junction))
                     ,currentJunc.links)
         d = {}
+        i=0
         for k,v in l:
             d[k] = v
+            i = i+1
+        '''
+        if i!=len(d):
+            print 'inserted {0} elements now {1} there are {2} links'.format(i,len(d),len(currentJunc.links))
+            for k,v in l:
+                print k,v
+        '''
         return d
     
     def isGoal(self):

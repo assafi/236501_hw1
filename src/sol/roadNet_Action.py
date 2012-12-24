@@ -8,7 +8,6 @@ class RoadNet_Action(ProblemAction):
     '''
     classdocs
     '''
-
     def __init__(self, cost, targetKey):
         '''
         Initiates this Action with a cost.
@@ -19,7 +18,10 @@ class RoadNet_Action(ProblemAction):
         ProblemAction.__init__(self, cost)
         #self.cost = cost
         self.targetKey = targetKey
-        
+    
+    def getTargetKey(self):
+        return self.targetKey
+            
     def __cmp__(self, other):
         '''
         The comparison method must be implemented to ensure deterministic results.

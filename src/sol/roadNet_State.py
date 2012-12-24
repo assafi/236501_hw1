@@ -11,7 +11,7 @@ class RoadNet_State(ProblemState):
     '''
 
 
-    def __init__(self, junction_key, route_map, actionFactory, goal_junction):
+    def __init__(self, junction_key, route_map, actionFactory, goal_junction, searchStatistics):
         '''
         Constructor
         '''
@@ -19,7 +19,7 @@ class RoadNet_State(ProblemState):
         self.route_map = route_map
         self.actionFactory = actionFactory
         self.goal_junction = goal_junction
-    
+        self.searchStatistics = searchStatistics
     def getSuccessors(self):
         '''
         Generates all the actions that can be performed from this state, and
@@ -27,10 +27,12 @@ class RoadNet_State(ProblemState):
         
         @return: A dictionary containing each action as a key, and its state.
         '''
+        if (self.searchStatistics!=None):
+            self.searchStatistics.incrementExpand()
         currentJunc = self.route_map.GetJunction(self.junction_key)
         l = map(lambda l: 
                    (self.actionFactory.create(l),
-                    RoadNet_State(l.target,self.route_map,self.actionFactory,self.goal_junction))
+                    RoadNet_State(l.target,self.route_map,self.actionFactory,self.goal_junction,self.searchStatistics))
                     ,currentJunc.links)
         d = {}
         i=0

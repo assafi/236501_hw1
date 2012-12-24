@@ -3,15 +3,16 @@ Created on Dec 17, 2012
 
 @author: Assaf
 '''
-from src.osm_utils4 import CountryMap, DEFAULT_DB_FILE
+from src.osm_utils4 import CountryMap, DEFAULT_DB_FILE, CAR_PETROL_PROFILE
 from src.problem_agent import ShortestRouteAgent, FastestRouteAgent, \
     FuelSavingRouteAgent, HybridRouteAgent
 from src.sol.actionFactories import ShortestActionFactory, FastestActionFactory, \
     FuelSavingActionFactory, HybridActionFactory
-from src.sol.route_problem import RoadNet_State
+from src.sol.roadNet_State import RoadNet_State
 import unittest
 import time
 import math
+from src.sol.searchStatistics import SearchStatistics
 
 MAX = 100
 car1= "Peugeot 508"
@@ -25,6 +26,7 @@ class Test(unittest.TestCase):
         self.map.LoadMap2("../../"+DEFAULT_DB_FILE)
         self.map.car = car1
         self.problem = [0,0]#only decleration...
+        self.statistics = SearchStatistics()
 
     def tearDown(self):
         pass
@@ -36,15 +38,43 @@ class Test(unittest.TestCase):
         time = self.elapsedTime()
         sum2 = sum(temp.getCost() for temp in element)
         length2 = len(element)
-        list2.append(length2)#pathLength
+        
+        callsToExpand = self.statistics.getCounter()
+        src= self.problem[0]
+        pathKeys = [src] + map(lambda x: x.getTargetKey(),element)
+
+        def getLink(map2,s,t):
+            sJunction = map2.GetJunction(s)
+            for link in sJunction.links:
+                if link.target == t:
+                    return link
+            print 'did not find for ({0},{1})'.format(s,t)
+
+        
+        sumDistance = sum([getLink(self.map,i, j).distance for i, j in zip(pathKeys[:-1], pathKeys[1:])])
+        sumTime = sum([getLink(self.map,i, j).distance*getLink(self.map, i, j).speed for i, j in zip(pathKeys[:-1], pathKeys[1:])])
+
+        #this is only the fuel for the fastest (shortest) metric not for the economy (fuel saving) one...
+        sumFuel = sum([(getLink(self.map,i, j).distance*1.0)/CAR_PETROL_PROFILE[self.map.car][getLink(self.map, i, j).speed] for i, j in zip(pathKeys[:-1], pathKeys[1:])])
+        
         list2.append(sum2 )#pathSum
+        list2.append(sumDistance)
+        list2.append(sumTime)
+        list2.append(sumFuel)
+        list2.append(callsToExpand)
         list2.append(time)#cpuTime
+        list2.append(length2)#pathLength
+        
     def testRunAll(self):
         
         def add(l,name):
-            header.append(name+' pathLength')
             header.append(name+' solutionDistance')
+            header.append(name+' sumDistance')
+            header.append(name+' sumTime')
+            header.append(name+' sumFuel')
+            header.append(name+' callsToExpand')
             header.append(name+' cpuTime')
+            header.append(name+' pathLength')
             
         def writeLineToCsv(line,file2):
             #print line
@@ -135,7 +165,8 @@ class Test(unittest.TestCase):
             sum2 = sum(temp.getCost() for temp in result)
             length2 = len(result)
             print 'path length: {0} cost: {1}'.format(length2,sum2)
-    def resetTimer(self):
+    def resetStatistics(self):
+        self.statistics = SearchStatistics()
         self.start= time.clock()
     def elapsedTime(self):
         return int(math.floor(time.clock()-self.start))
@@ -165,9 +196,9 @@ class Test(unittest.TestCase):
         print 'hybrid done in {0}'.format(self.elapsedTime())
     '''
     def findShortestRoute(self):
-        self.resetTimer()        
+        self.resetStatistics()        
         problem_state = RoadNet_State(self.problem[0],self.map,\
-                                          ShortestActionFactory(),self.problem[1])
+                                          ShortestActionFactory(),self.problem[1],self.statistics)
         agent = ShortestRouteAgent()
         answer = agent.solve(problem_state)
         '''for n in answer:
@@ -176,9 +207,9 @@ class Test(unittest.TestCase):
         return answer
             
     def findFastestRoute(self):
-        self.resetTimer()
+        self.resetStatistics()
         problem_state = RoadNet_State(self.problem[0],self.map,\
-                                          FastestActionFactory(),self.problem[1])
+                                          FastestActionFactory(),self.problem[1],self.statistics)
         agent = FastestRouteAgent()
         answer = agent.solve(problem_state)
         '''for n in answer:
@@ -188,10 +219,10 @@ class Test(unittest.TestCase):
     
     #was (0,40)
     def findFuelSavingRoute(self):
-        self.resetTimer()
+        self.resetStatistics()
         problem_state = RoadNet_State(self.problem[0],self.map,\
                                           FuelSavingActionFactory(self.map),\
-                                          self.problem[1])
+                                          self.problem[1],self.statistics)
         agent = FuelSavingRouteAgent()
         answer = agent.solve(problem_state)
         '''for n in answer:
@@ -199,11 +230,11 @@ class Test(unittest.TestCase):
         '''
         return answer    
     def findHybrid(self,alpha,beta):
-        self.resetTimer()
+        self.resetStatistics()
         problem_state = RoadNet_State(self.problem[0],self.map,\
             HybridActionFactory(alpha,beta,ShortestActionFactory(),\
                                 FastestActionFactory(),FuelSavingActionFactory(self.map))\
-                                          ,self.problem[1])
+                                          ,self.problem[1],self.statistics)
         
         agent = HybridRouteAgent(alpha,beta)
         answer = agent.solve(problem_state)

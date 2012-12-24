@@ -17,3 +17,5 @@ class SearchStatistics(object):
         self.expandCounter=0
     def incrementExpand(self):
         self.expandCounter= self.expandCounter + 1
+    def getCounter(self):
+        return self.expandCounter

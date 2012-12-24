@@ -52,10 +52,10 @@ class Test(unittest.TestCase):
 
         
         sumDistance = sum([getLink(self.map,i, j).distance for i, j in zip(pathKeys[:-1], pathKeys[1:])])
-        sumTime = sum([getLink(self.map,i, j).distance*getLink(self.map, i, j).speed for i, j in zip(pathKeys[:-1], pathKeys[1:])])
+        sumTime = sum([(getLink(self.map,i, j).distance/1000.0)*(1.0/getLink(self.map, i, j).speed) for i, j in zip(pathKeys[:-1], pathKeys[1:])])
 
         #this is only the fuel for the fastest (shortest) metric not for the economy (fuel saving) one...
-        sumFuel = sum([(getLink(self.map,i, j).distance*1.0)/CAR_PETROL_PROFILE[self.map.car][getLink(self.map, i, j).speed] for i, j in zip(pathKeys[:-1], pathKeys[1:])])
+        sumFuel = sum([(getLink(self.map,i, j).distance/1000.0)/CAR_PETROL_PROFILE[self.map.car][getLink(self.map, i, j).speed] for i, j in zip(pathKeys[:-1], pathKeys[1:])])
         
         list2.append(sum2 )#pathSum
         list2.append(sumDistance)

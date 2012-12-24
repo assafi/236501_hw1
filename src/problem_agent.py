@@ -1,7 +1,8 @@
 from src.search.astar import AStar
 from src.osm_utils4 import *
+from src.sol.actionFactories import optimumPetrolConsumption
 NO_LIMIT = -1
-
+MAX_SPEED = 120
 class ProblemAgent ():
     '''
     This is an interface for a Problem Solving Agent.
@@ -52,7 +53,8 @@ class FastestRouteHeuristics():
     def evaluate(self,route_problem_state):
         return route_problem_state.route_map.\
             JunctionDistance(route_problem_state.junction_key,\
-                             route_problem_state.goal_junction) / 120.0
+                             route_problem_state.goal_junction) / (MAX_SPEED*1.0)
+'''
 def OptimumConsumption(routeMap):
         if routeMap.car in CAR_PETROL_PROFILE:
             minimum = 0
@@ -61,13 +63,13 @@ def OptimumConsumption(routeMap):
                     minimum = val
             return minimum
         return DEFAULT_PETROL
-    
+'''    
 class FuelSavingRouteHeuristics():
     def evaluate(self,route_problem_state):
-        return route_problem_state.route_map.\
-            JunctionDistance(route_problem_state.junction_key,\
-                             route_problem_state.goal_junction) * \
-                             1.0/OptimumConsumption(route_problem_state.route_map)
+        distance = route_problem_state.route_map. \
+            JunctionDistance(route_problem_state.junction_key, \
+                             route_problem_state.goal_junction)
+        return optimumPetrolConsumption(route_problem_state.route_map,MAX_SPEED,distance)
 #route_problem_state.route_map.OptimumConsumption()
                              
 class HybridHeuristics():

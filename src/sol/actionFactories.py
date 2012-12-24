@@ -6,6 +6,15 @@ Created on Dec 18, 2012
 from src.osm_utils4 import *
 from src.sol.roadNet_Action import RoadNet_Action
 
+#returns the optimum consumption in liters
+#routeMap - map
+#maxSpeed - the maximum speed for this link km/h
+#distance - the distance on this link - km
+def optimumPetrolConsumption(routeMap,maxSpeed,distance):
+    if routeMap.car in CAR_PETROL_PROFILE:
+        return min(map(lambda x: distance/(1.0*x), CAR_PETROL_PROFILE[routeMap.car][1:maxSpeed]))
+    return (1.0/DEFAULT_PETROL)*distance
+
 class ActionFactory():
     def create(self, aLink):
         raise NotImplementedError()
@@ -25,11 +34,6 @@ class FuelSavingActionFactory(ActionFactory):
         self.map = route_map
                 
     def create(self, aLink):
-        #returns the optimum consumption in liters
-        def optimumPetrolConsumption(routeMap,maxSpeed,distance):
-            if routeMap.car in CAR_PETROL_PROFILE:
-                return min(map(lambda x: (distance*1.0)/x, CAR_PETROL_PROFILE[routeMap.car][1:maxSpeed]))
-            return (1.0/DEFAULT_PETROL)*distance
         return RoadNet_Action(optimumPetrolConsumption(self.map,aLink.speed,aLink.distance/1000.0),aLink.target)
         #this is another bug...
         '''return ProblemAction(1.0/self.PetrolConsumption(aLink.speed) * \

@@ -108,20 +108,27 @@ class Test(unittest.TestCase):
         add(header,'economic2')
         add(header,'hybrid1')
         add(header,'hybrid2')
+        
+        #TODO: remove this is only to compare to Facebook
+        problemKeys = {}
+        problemKeys[0]=[452338,271665]
+        problemKeys[1]=[774284,635241]
+        problemKeys[2]=[674439,701233]
+        problemKeys[3]=[902060,317092]
+        problemKeys[4]=[307014,26939]
+        problemKeys[5]=[579958,81815]
+        problemKeys[6]=[425252,349512]
+        problemKeys[7]=[918327,572887]
+        problemKeys[8]=[710147,336195]
+        problemKeys[9]=[327020,188803]
+        
         writeLineToCsv(header, file2)
         for i in xrange(MAX):
-            # TODO : remove this
-            if (i==0):
-                self.problem = [452338,271665]
-            if (i==1):
-                self.problem = [774284,635241]
-            if (i==2):
-                self.problem = [674439,701233]
-            if (i==3):
-                self.problem = [902060,317092]
-            if (i>3):
+            #TODO: remove this is only to compare to Facebook
+            if problemKeys.has_key(i):
+                self.problem = problemKeys[i]
+            else:
                 self.problem = self.map.GenerateProblem()
-            
             while (False==self.isFeasibile()):
                 print 'no solution for ({0},{1})'.format(self.problem[0],self.problem[1])
                 self.problem = self.map.GenerateProblem()

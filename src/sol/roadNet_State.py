@@ -5,7 +5,7 @@ Created on Dec 16, 2012
 '''
 from src.problem import ProblemState
 
-class RouteProblemState(ProblemState):
+class RoadNet_State(ProblemState):
     '''
     classdocs
     '''
@@ -30,7 +30,7 @@ class RouteProblemState(ProblemState):
         currentJunc = self.route_map.GetJunction(self.junction_key)
         l = map(lambda l: 
                    (self.actionFactory.create(l),
-                    RouteProblemState(l.target,self.route_map,self.actionFactory,self.goal_junction))
+                    RoadNet_State(l.target,self.route_map,self.actionFactory,self.goal_junction))
                     ,currentJunc.links)
         d = {}
         i=0

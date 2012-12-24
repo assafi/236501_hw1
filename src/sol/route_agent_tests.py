@@ -8,7 +8,7 @@ from src.problem_agent import ShortestRouteAgent, FastestRouteAgent, \
     FuelSavingRouteAgent, HybridRouteAgent
 from src.sol.actionFactories import ShortestActionFactory, FastestActionFactory, \
     FuelSavingActionFactory, HybridActionFactory
-from src.sol.route_problem import RouteProblemState
+from src.sol.route_problem import RoadNet_State
 import unittest
 import time
 import math
@@ -80,7 +80,17 @@ class Test(unittest.TestCase):
         add(header,'hybrid2')
         writeLineToCsv(header, file2)
         for i in xrange(MAX):
-            self.problem = self.map.GenerateProblem()
+            # TODO : remove this
+            if (i==0):
+                self.problem = [452338,271665]
+            if (i==1):
+                self.problem = [774284,635241]
+            if (i==2):
+                self.problem = [674439,701233]
+            if (i==3):
+                self.problem = [902060,317092]
+            if (i>3):
+                self.problem = self.map.GenerateProblem()
             
             while (False==self.isFeasibile()):
                 print 'no solution for ({0},{1})'.format(self.problem[0],self.problem[1])
@@ -91,7 +101,6 @@ class Test(unittest.TestCase):
             result = list()
             result.append(i)
             result.append(src)
-            result.append(dest)
             result.append(dest)
             result.append(self.map.JunctionDistance(src,dest))
             #1
@@ -157,7 +166,7 @@ class Test(unittest.TestCase):
     '''
     def findShortestRoute(self):
         self.resetTimer()        
-        problem_state = RouteProblemState(self.problem[0],self.map,\
+        problem_state = RoadNet_State(self.problem[0],self.map,\
                                           ShortestActionFactory(),self.problem[1])
         agent = ShortestRouteAgent()
         answer = agent.solve(problem_state)
@@ -168,7 +177,7 @@ class Test(unittest.TestCase):
             
     def findFastestRoute(self):
         self.resetTimer()
-        problem_state = RouteProblemState(self.problem[0],self.map,\
+        problem_state = RoadNet_State(self.problem[0],self.map,\
                                           FastestActionFactory(),self.problem[1])
         agent = FastestRouteAgent()
         answer = agent.solve(problem_state)
@@ -180,7 +189,7 @@ class Test(unittest.TestCase):
     #was (0,40)
     def findFuelSavingRoute(self):
         self.resetTimer()
-        problem_state = RouteProblemState(self.problem[0],self.map,\
+        problem_state = RoadNet_State(self.problem[0],self.map,\
                                           FuelSavingActionFactory(self.map),\
                                           self.problem[1])
         agent = FuelSavingRouteAgent()
@@ -191,7 +200,7 @@ class Test(unittest.TestCase):
         return answer    
     def findHybrid(self,alpha,beta):
         self.resetTimer()
-        problem_state = RouteProblemState(self.problem[0],self.map,\
+        problem_state = RoadNet_State(self.problem[0],self.map,\
             HybridActionFactory(alpha,beta,ShortestActionFactory(),\
                                 FastestActionFactory(),FuelSavingActionFactory(self.map))\
                                           ,self.problem[1])

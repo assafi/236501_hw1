@@ -20,6 +20,10 @@ class RoadNet_State(ProblemState):
         self.actionFactory = actionFactory
         self.goal_junction = goal_junction
         self.searchStatistics = searchStatistics
+    
+    def getLinks(self):
+        return map(lambda l: (self.junction_key,l.target),self.route_map.GetJunction(self.junction_key).links)
+    
     def getSuccessors(self):
         '''
         Generates all the actions that can be performed from this state, and

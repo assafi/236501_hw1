@@ -3,17 +3,13 @@ Created on Dec 18, 2012
 
 @author: Assaf
 '''
-from src.osm_utils4 import *
 from src.sol.roadNet_Action import RoadNet_Action
+from src.osm_utils4 import CAR_PETROL_PROFILE, DEFAULT_PETROL
 
 #returns the optimum consumption in liters
 #routeMap - map
 #maxSpeed - the maximum speed for this link km/h
 #distance - the distance on this link - km
-def optimumPetrolConsumption(routeMap,maxSpeed,distance):
-    if routeMap.car in CAR_PETROL_PROFILE:
-        return min(map(lambda x: distance/(1.0*x), CAR_PETROL_PROFILE[routeMap.car][1:maxSpeed]))
-    return (1.0/DEFAULT_PETROL)*distance
 
 class ActionFactory():
     def create(self, aLink):
@@ -32,13 +28,18 @@ class FastestActionFactory(ActionFactory):
 class FuelSavingActionFactory(ActionFactory):
     def __init__(self, route_map):
         self.map = route_map
+    
+    def optimumPetrolConsumption(self,maxSpeed,distance):
+        if self.map.car in CAR_PETROL_PROFILE:
+            return min(map(lambda x: distance/(1.0*x), CAR_PETROL_PROFILE[self.map.car][1:maxSpeed]))
+        return (1.0/DEFAULT_PETROL)*distance
                 
     def create(self, aLink):
-        return RoadNet_Action(optimumPetrolConsumption(self.map,aLink.speed,aLink.distance/1000.0),aLink.target)
+        return RoadNet_Action(self.optimumPetrolConsumption(aLink.speed,aLink.distance/1000.0),aLink.target)
         #this is another bug...
         '''return ProblemAction(1.0/self.PetrolConsumption(aLink.speed) * \
                                   aLink.distance)
-        '''
+        '''    
     
     
     #shouldn't we normalize the values here?

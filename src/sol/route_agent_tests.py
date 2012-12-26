@@ -4,8 +4,6 @@ Created on Dec 17, 2012
 @author: Assaf
 '''
 from src.osm_utils4 import CountryMap, DEFAULT_DB_FILE, CAR_PETROL_PROFILE
-from src.problem_agent import ShortestRouteAgent, FastestRouteAgent, \
-    FuelSavingRouteAgent, HybridRouteAgent
 from src.sol.actionFactories import ShortestActionFactory, FastestActionFactory, \
     FuelSavingActionFactory, HybridActionFactory
 from src.sol.roadNet_State import RoadNet_State
@@ -13,8 +11,11 @@ import unittest
 import time
 import math
 from src.sol.searchStatistics import SearchStatistics
+from src.search.astar import AStar
+from src.sol.problemAgents import ShortestRouteAgent, FastestRouteAgent,\
+    FuelSavingRouteAgent, HybridRouteAgent
 
-MAX = 100
+MAX = 1
 car1= "Peugeot 508"
 car2= "Ford Focus"
 
@@ -206,7 +207,7 @@ class Test(unittest.TestCase):
         self.resetStatistics()        
         problem_state = RoadNet_State(self.problem[0],self.map,\
                                           ShortestActionFactory(),self.problem[1],self.statistics)
-        agent = ShortestRouteAgent()
+        agent = ShortestRouteAgent(AStar())
         answer = agent.solve(problem_state)
         '''for n in answer:
             print(n)
@@ -217,7 +218,7 @@ class Test(unittest.TestCase):
         self.resetStatistics()
         problem_state = RoadNet_State(self.problem[0],self.map,\
                                           FastestActionFactory(),self.problem[1],self.statistics)
-        agent = FastestRouteAgent()
+        agent = FastestRouteAgent(AStar())
         answer = agent.solve(problem_state)
         '''for n in answer:
             print(n)
@@ -230,7 +231,7 @@ class Test(unittest.TestCase):
         problem_state = RoadNet_State(self.problem[0],self.map,\
                                           FuelSavingActionFactory(self.map),\
                                           self.problem[1],self.statistics)
-        agent = FuelSavingRouteAgent()
+        agent = FuelSavingRouteAgent(AStar())
         answer = agent.solve(problem_state)
         '''for n in answer:
             print(n)
@@ -243,7 +244,7 @@ class Test(unittest.TestCase):
                                 FastestActionFactory(),FuelSavingActionFactory(self.map))\
                                           ,self.problem[1],self.statistics)
         
-        agent = HybridRouteAgent(alpha,beta)
+        agent = HybridRouteAgent(AStar(),alpha,beta)
         answer = agent.solve(problem_state)
         '''for n in answer:
             print(n)

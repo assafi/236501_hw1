@@ -137,7 +137,7 @@ class RoadsTester(object):
         add(header,'hybrid1')
         
         writeLineToCsv(header, file2)
-        for w in map(lambda x: x/20.0,xrange(1,20)):
+        for w in map(lambda x: x/40.0,xrange(1,40)):
             self.alg.setWeight(w)
             for i in xrange(self.max):
                 #TODO: remove this is only to compare to Facebook

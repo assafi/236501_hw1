@@ -33,7 +33,8 @@ class FuelSavingActionFactory(ActionFactory):
     
     def optimumPetrolConsumption(self,maxSpeed,distance):
         if self.map.car in CAR_PETROL_PROFILE:
-            return min(map(lambda x: distance/(1.0*x), CAR_PETROL_PROFILE[self.map.car][1:maxSpeed]))
+            #return min(map(lambda x: distance/(1.0*x), CAR_PETROL_PROFILE[self.map.car][1:maxSpeed]))
+            return distance/(1.0*CAR_PETROL_PROFILE[self.map.car][maxSpeed])
         return (1.0/DEFAULT_PETROL)*distance
                 
     def create(self, aLink):

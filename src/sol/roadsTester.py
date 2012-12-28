@@ -134,9 +134,10 @@ class RoadsTester(object):
         add(header,'shortest')
         add(header,'fastest')
         add(header,'economic1')
+        add(header,'hybrid1')
         
         writeLineToCsv(header, file2)
-        for w in map(lambda x: x/20.0,range(1,20)):
+        for w in map(lambda x: x/20.0,xrange(1,20)):
             self.alg.setWeight(w)
             for i in xrange(self.max):
                 #TODO: remove this is only to compare to Facebook
@@ -155,6 +156,7 @@ class RoadsTester(object):
                 result.append(src)
                 result.append(dest)
                 result.append(self.map.JunctionDistance(src,dest))
+                result.append(w)
                 #1
                 self.appendResult(result,self.findShortestRoute())
                 #2

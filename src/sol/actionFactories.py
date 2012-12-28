@@ -5,6 +5,8 @@ Created on Dec 18, 2012
 '''
 from src.sol.roadNet_Action import RoadNet_Action
 from src.osm_utils4 import CAR_PETROL_PROFILE, DEFAULT_PETROL
+from consts import SHORTEST_NORMALIZATION_FACTOR,\
+    FASTEST_NORMALIZATION_FACTOR, ECO_NORMALIZATION_FACTOR
 
 #returns the optimum consumption in liters
 #routeMap - map
@@ -40,13 +42,11 @@ class FuelSavingActionFactory(ActionFactory):
         '''return ProblemAction(1.0/self.PetrolConsumption(aLink.speed) * \
                                   aLink.distance)
         '''    
-    
-    
-    #shouldn't we normalize the values here?
 class HybridActionFactory(ActionFactory):
     def __init__(self, alpha, beta, actionFactory1, actionFactory2, actionFactory3):
-        self.alpha = alpha
-        self.beta = beta
+        self.w1 = alpha * SHORTEST_NORMALIZATION_FACTOR
+        self.w2 = beta * FASTEST_NORMALIZATION_FACTOR
+        self.w3 = (1 - alpha - beta) * ECO_NORMALIZATION_FACTOR
         self.actionFactory1 = actionFactory1
         self.actionFactory2 = actionFactory2
         self.actionFactory3 = actionFactory3
@@ -54,6 +54,6 @@ class HybridActionFactory(ActionFactory):
         cost1 = self.actionFactory1.create(aLink).getCost()
         cost2 = self.actionFactory2.create(aLink).getCost()
         cost3 = self.actionFactory3.create(aLink).getCost()
-        return RoadNet_Action(self.alpha * cost1 + self.beta * cost2 + \
-                             (1 - self.alpha - self.beta) * cost3,aLink.target)
+        return RoadNet_Action(self.w1 * cost1 + self.w2 * cost2 + \
+                              self.w3* cost3,aLink.target)
             

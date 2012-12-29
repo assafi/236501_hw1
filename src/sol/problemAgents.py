@@ -4,7 +4,6 @@ Created on Dec 26, 2012
 @author: Assaf
 '''
 from src.problem_agent import ProblemAgent
-from src.search.astar import AStar
 from src.sol.problemHeuristics import ShortestRouteHeuristics,\
     FastestRouteHeuristics, FuelSavingRouteHeuristics, HybridHeuristics
 

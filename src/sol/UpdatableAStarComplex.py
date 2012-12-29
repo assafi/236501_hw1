@@ -3,11 +3,11 @@ Created on Dec 21, 2012
 
 @author: Assaf
 '''
-from src.search.utils import infinity, PriorityQueue
+from src.search.utils import infinity, PriorityQueue, LIFOQueue
 from src.search.algorithm import SearchAlgorithm
 from src.search.graph import Node
 
-class AStar2():
+class AStarWithUpdatesComplex():
     '''
     This is the modified version of AStar, capable of
     receiving a bound number of cost updates. Upon each 
@@ -43,7 +43,10 @@ class AStar2():
         # Use a graph search with a minimum priority queue to conduct the search.
         search = UpdatableGraphSearch(queue_generator, self.max_depth)
         return search.find(problem_state)
-    
+
+LINK_ID=0
+CHANGE=1
+   
 class UpdatableGraphSearch (SearchAlgorithm):
     '''
     Implementation of a simple generic graph search algorithm for the Problem.
@@ -80,13 +83,23 @@ class UpdatableGraphSearch (SearchAlgorithm):
         '''
         m = problem_state.route_map
         m.ZeroChangeCounter()
-        open_states = self.container_generator()
+        open_nodes = self.container_generator()
         closed_states = {}
         traversed_links = []
-        open_states.append(Node(problem_state))
-        while open_states and len(open_states) > 0:
-            m.GetSpeedUpdates(traversed_links)
-            node = open_states.pop()
+        open_nodes.append(Node(problem_state))
+        while open_nodes and len(open_nodes) > 0:
+            updated_links = m.GetSpeedUpdates(traversed_links)
+            for ul in updated_links:
+                junction_key = ul[LINK_ID][0]
+                node = closed_states[junction_key][0]
+                self.updateLink(node.state,ul)
+                print "link #"+str(ul[LINK_ID])+" changed: "+str(ul[CHANGE])
+                if (ul[CHANGE] < 0):
+                    open_nodes.append(node)
+                if (ul[CHANGE] > 0):
+                    open_nodes = self.updateSubTree(node,closed_states,open_nodes)
+                    
+            node = open_nodes.pop()
             
             if node.depth > self.max_depth:
                 print 'bug?'
@@ -95,13 +108,38 @@ class UpdatableGraphSearch (SearchAlgorithm):
             if node.state.isGoal(): 
                 return node.getPathActions()
             
-            if (node.state not in closed_states) or (node.path_cost < closed_states[node.state]):
-                closed_states[node.state] = node.path_cost
+            if (node.state.junction_key not in closed_states) or (node.path_cost < closed_states[node.state.junction_key][1]):
+                closed_states[node.state.junction_key] = (node,node.path_cost)
+                traversed_links.extend(node.state.getLinks())
                 successors = node.expand()
-                map(lambda n: traversed_links.extend(n.getLinks()), successors)
-                open_states.extend(successors)
-        
+                open_nodes.extend(successors)
         print 'failed to find'
         return None
     
-        
+    def updateSubTree(self,root,tree,front):
+        '''This function updates all the path_cost (with diff) of the sub-tree in tree that starts in root, until it reaches the front.
+            This is done in DFS style'''
+        open_nodes = []
+        closed_states = {}
+        open_nodes.append(root)
+        update_open_list = []
+        while open_nodes and len(open_nodes) > 0:
+            node = open_nodes.pop() 
+            if node.state in map(lambda x: x[1].state, front.q) and node.state not in map(lambda x: x.state,update_open_list):
+                update_open_list += [node]
+                continue
+            if (node.state.junction_key not in closed_states) or (node.path_cost < closed_states[node.state.junction_key]):
+                closed_states[node.state.junction_key] = node.path_cost
+                tree[node.state.junction_key] = (node,node.path_cost)
+                successors = node.expand()
+                open_nodes.extend(successors)
+        new_front = self.container_generator()
+        new_front.extend(update_open_list)
+        new_front.extend(filter(lambda x: x.state not in map(lambda y: y.state, update_open_list),map(lambda y: y[1],front.q)))
+        return new_front
+    
+    def updateLink(self,state,ul):
+        junction = state.route_map.GetJunction(ul[LINK_ID][0])
+        linkToUpdate = filter(lambda l: l.target == ul[LINK_ID][1],junction.links)[0]          
+        linkToUpdate.speed *= (1 + ul[CHANGE])        
+                

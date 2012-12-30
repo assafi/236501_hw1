@@ -21,8 +21,10 @@ class Test(unittest.TestCase):
     
     def testComplexUpdatableAStar(self):
         for i in xrange(1,2):
-            problem_state = RoadNet_State(self.problem[0],self.map,\
-                                              ShortestActionFactory(),self.problem[1],None)
+#            problem_state = RoadNet_State(self.problem[0],self.map,\
+#                                              ShortestActionFactory(),self.problem[1],None)
+            problem_state = RoadNet_State(918327,self.map,\
+                                              ShortestActionFactory(),572887,None)
             start = time.clock()
             agent = ShortestRouteAgent(AStarWithUpdatesComplex())
             agent.solve(problem_state)

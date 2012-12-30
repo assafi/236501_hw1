@@ -3,9 +3,9 @@ Created on Dec 21, 2012
 
 @author: Assaf
 '''
-from src.search.utils import infinity, PriorityQueue, LIFOQueue
 from src.search.algorithm import SearchAlgorithm
 from src.search.graph import Node
+from src.search.utils import infinity, PriorityQueue
 
 class AStarWithUpdatesComplex():
     '''
@@ -86,7 +86,11 @@ class UpdatableGraphSearch (SearchAlgorithm):
         open_nodes = self.container_generator()
         closed_states = {}
         traversed_links = []
-        open_nodes.append(Node(problem_state))
+        root = Node(problem_state)
+        open_nodes.append(root)
+        
+        known_nodes = {problem_state:[root]}
+        
         while open_nodes and len(open_nodes) > 0:
             updated_links = m.GetSpeedUpdates(traversed_links)
             for ul in updated_links:
@@ -97,7 +101,7 @@ class UpdatableGraphSearch (SearchAlgorithm):
                 if (ul[CHANGE] < 0):
                     open_nodes.append(node)
                 if (ul[CHANGE] > 0):
-                    open_nodes = self.updateSubTree(node,closed_states,open_nodes)
+                    open_nodes = self.updateSubTree(node,closed_states,open_nodes,known_nodes)
                     
             node = open_nodes.pop()
             
@@ -107,16 +111,23 @@ class UpdatableGraphSearch (SearchAlgorithm):
             
             if node.state.isGoal(): 
                 return node.getPathActions()
-            
+                
             if (node.state.junction_key not in closed_states) or (node.path_cost < closed_states[node.state.junction_key][1]):
                 closed_states[node.state.junction_key] = (node,node.path_cost)
-                traversed_links.extend(node.state.getLinks())
+                '''We need to update the known_nodes dictionary with all children nodes, 
+                since it is possible that in the DFS run we'll use them'''
                 successors = node.expand()
+                for n in successors:
+                    if n.state not in known_nodes:
+                        known_nodes[n.state] = []
+                    known_nodes[n.state].append(n)
                 open_nodes.extend(successors)
+                traversed_links.extend(node.state.getLinks())
+#            print "len(open_nodes) = "+str(len(open_nodes))
         print 'failed to find'
         return None
     
-    def updateSubTree(self,root,tree,front):
+    def updateSubTree(self,root,tree,front,known_nodes):
         '''This function updates all the path_cost (with diff) of the sub-tree in tree that starts in root, until it reaches the front.
             This is done in DFS style'''
         open_nodes = []
@@ -124,7 +135,15 @@ class UpdatableGraphSearch (SearchAlgorithm):
         open_nodes.append(root)
         update_open_list = []
         while open_nodes and len(open_nodes) > 0:
-            node = open_nodes.pop() 
+            node = open_nodes.pop()
+            '''It is possible that due to the change a new path to the node is better than the current one'''
+            if node.parent:
+                candidate_nodes = filter(lambda n: (not n.parent) or cmp(n.parent.state,node.parent.state) != 0, known_nodes[node.state])
+                if candidate_nodes and len(candidate_nodes) > 0:
+                    candidate_nodes.append(node)
+                else:
+                    candidate_nodes = [node]
+                node = bestCandidate(candidate_nodes) 
             if node.state in map(lambda x: x[1].state, front.q) and node.state not in map(lambda x: x.state,update_open_list):
                 update_open_list += [node]
                 continue
@@ -142,4 +161,12 @@ class UpdatableGraphSearch (SearchAlgorithm):
         junction = state.route_map.GetJunction(ul[LINK_ID][0])
         linkToUpdate = filter(lambda l: l.target == ul[LINK_ID][1],junction.links)[0]          
         linkToUpdate.speed *= (1 + ul[CHANGE])        
-                
+
+def bestCandidate(candidate_nodes):
+    minNode = candidate_nodes[0]
+    minCost = minNode.path_cost
+    for cn in candidate_nodes:
+        if minCost > cn.path_cost:
+            minCost = cn.path_cost
+            minNode = cn
+    return minNode              

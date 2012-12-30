@@ -14,7 +14,7 @@ from searchStatistics import SearchStatistics
 from problemAgents import ShortestRouteAgent, FastestRouteAgent,\
     FuelSavingRouteAgent, HybridRouteAgent
 
-W_VALS_COUNT = 1
+W_VALS_COUNT = 20
 W_VALS = W_VALS_COUNT + 1
 RUN5_HEURISTICS_COUNT = 4
 
@@ -89,11 +89,9 @@ class RoadsTester(object):
         add(header,'shortest')
         add(header,'fastest')
         add(header,'economic1')
-        if self.car2!=None:
-            add(header,'economic2')
+        add(header,'economic2')
         add(header,'hybrid1')
-        if self.car2!=None:
-            add(header,'hybrid2')
+        add(header,'hybrid2')
         
         writeLineToCsv(header, file2)
         self.prepareProblems(self.max)
@@ -206,11 +204,18 @@ class RoadsTester(object):
             result.append(self.map.JunctionDistance(src,dest))
                 
             for j in xrange(RUN5_HEURISTICS_COUNT):
-                minSolDistance = min([matrix[i][w][j][1] for w in xrange(W_VALS_COUNT)])
-                minCallsToExpand = min([matrix[i][w][j][3] for w in xrange(W_VALS_COUNT)])
+                #minSolDistance = min([matrix[i][w][j][1] for w in xrange(W_VALS_COUNT)])
+                #minCallsToExpand = min([matrix[i][w][j][3] for w in xrange(W_VALS_COUNT)])
                 
-                solDistanceRatio = map(lambda x: x[j][1]/(1.0*minSolDistance),matrix[i])
-                callToExapndRatio = map(lambda x: x[j][3]/(1.0*minCallsToExpand),matrix[i])
+                minSolDistance = min(map(lambda w: matrix[i][w][j][1] ,xrange(W_VALS_COUNT)))
+                minCallsToExpand = min(map(lambda w: matrix[i][w][j][3] ,xrange(W_VALS_COUNT)))
+                
+                solDistanceRatio = map(lambda w: matrix[i][w][j][1]/(1.0*minSolDistance) ,xrange(W_VALS_COUNT))
+                callToExapndRatio = map(lambda w: matrix[i][w][j][3]/(1.0*minCallsToExpand) ,xrange(W_VALS_COUNT))
+                
+                
+                #solDistanceRatio = map(lambda w: matrix[i][w][j][3] ,xrange(W_VALS_COUNT))
+                #callToExapndRatio = map(lambda x: x[j][3]/(1.0*minCallsToExpand),matrix[i])
                 
                 result.append(minSolDistance)
                 result.append(minCallsToExpand)

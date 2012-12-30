@@ -64,19 +64,21 @@ class RoadsTester(object):
         self.statistics = SearchStatistics()
         
         #TODO: remove this is only to compare to Facebook
-        problemKeys = {}
-        problemKeys[0]=[452338,271665]
-        problemKeys[1]=[774284,635241]
-        problemKeys[2]=[674439,701233]
-        problemKeys[3]=[902060,317092]
-        problemKeys[4]=[307014,26939]
-        problemKeys[5]=[579958,81815]
-        problemKeys[6]=[425252,349512]
-        problemKeys[7]=[918327,572887]
-        problemKeys[8]=[710147,336195]
-        problemKeys[9]=[327020,188803]
+        problemPoll = {}
+        problemPoll[0]=[452338,271665]
+        problemPoll[1]=[774284,635241]
+        problemPoll[2]=[674439,701233]
+        problemPoll[3]=[902060,317092]
+        problemPoll[4]=[307014,26939]
+        problemPoll[5]=[579958,81815]
+        problemPoll[6]=[425252,349512]
+        problemPoll[7]=[918327,572887]
+        problemPoll[8]=[710147,336195]
+        problemPoll[9]=[327020,188803]
         
-        self.problemKeys = problemKeys
+        self.problemPoll = problemPoll
+        
+        self.prepareProblems(self.max)
         '''
         Constructor
         '''
@@ -94,9 +96,8 @@ class RoadsTester(object):
         add(header,'hybrid2')
         
         writeLineToCsv(header, file2)
-        self.prepareProblems(self.max)
         for i in xrange(self.max):
-            self.problem = self.problemKeys[i]
+            self.problem = self.problemPoll[i]
             src = self.problem[0]
             dest = self.problem[1]
             print '({0},{1})'.format(src,dest)
@@ -132,15 +133,14 @@ class RoadsTester(object):
         print 'done'
         file2.close()
     def prepareProblems(self,count):
-        for i in xrange(1,count):
-            if not(i in self.problemKeys):
+        for i in xrange(count):
+            if not(i in self.problemPoll):
                 self.problem = self.map.GenerateProblem()
             while (False==self.isFeasibile()):
                     print 'no solution for ({0},{1})'.format(self.problem[0],self.problem[1])
                     self.problem = self.map.GenerateProblem()
-            self.problemKeys = self.problem
+            self.problemPoll[i] = self.problem
     def performRun5(self):
-        self.prepareProblems(self.max)
         #prepare written csv header
         print 'starting run 5'
         file2 = open("results.csv", "w")
@@ -160,7 +160,7 @@ class RoadsTester(object):
             self.alg.setWeight(w)
             
             for i in xrange(self.max):
-                self.problem = self.problemKeys[i]
+                self.problem = self.problemPoll[i]
                 src = self.problem[0]
                 dest = self.problem[1]
                 print '({0},{1})'.format(src,dest)

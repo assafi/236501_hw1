@@ -68,6 +68,7 @@ class RoadsTester(object):
         Constructor
         '''
     def performRun4(self):
+        print 'starting run 4 b'
         #prepare written csv header
         file2 = open("results.csv", "w")
         header = list()
@@ -127,7 +128,9 @@ class RoadsTester(object):
         file2.close()
         
     def performRun5(self):
+        
         #prepare written csv header
+        print 'starting run 5 b'
         file2 = open("results.csv", "w")
         header = list()
         header.append('test#,src,dest,airDistance,w')
@@ -137,19 +140,20 @@ class RoadsTester(object):
         add(header,'hybrid1')
         
         writeLineToCsv(header, file2)
-        for w in map(lambda x: x/40.0,xrange(1,40)):
+        j=0
+        for w in map(lambda x: x/20.0,xrange(1,20)):
             self.alg.setWeight(w)
-            for i in xrange(self.max):
-                #TODO: remove this is only to compare to Facebook
-                if self.problemKeys.has_key(i):
-                    self.problem = self.problemKeys[i]
-                else:
-                    self.problem = self.map.GenerateProblem()
-                while (False==self.isFeasibile()):
+            #TODO: remove this is only to compare to Facebook
+            if self.problemKeys.has_key(j):
+                self.problem = self.problemKeys[j]
+            else:
+                self.problem = self.map.GenerateProblem()
+            while (False==self.isFeasibile()):
                     print 'no solution for ({0},{1})'.format(self.problem[0],self.problem[1])
                     self.problem = self.map.GenerateProblem()
-                src = self.problem[0]
-                dest = self.problem[1]
+            src = self.problem[0]
+            dest = self.problem[1]
+            for i in xrange(self.max):
                 print '({0},{1})'.format(src,dest)
                 result = list()
                 result.append(i)

@@ -31,14 +31,14 @@ class FuelSavingActionFactory(ActionFactory):
     def __init__(self, route_map):
         self.map = route_map
     
-    def optimumPetrolConsumption(self,maxSpeed,distance):
+    def optimumPetrolConsumption(self,minSpeed,maxSpeed,distance):
         if self.map.car in CAR_PETROL_PROFILE:
-            #return min(map(lambda x: distance/(1.0*x), CAR_PETROL_PROFILE[self.map.car][1:maxSpeed]))
-            return distance/(1.0*CAR_PETROL_PROFILE[self.map.car][maxSpeed])
+            return min(map(lambda x: distance/(1.0*x), CAR_PETROL_PROFILE[self.map.car][minSpeed:maxSpeed]))
+            #return distance/(1.0*CAR_PETROL_PROFILE[self.map.car][maxSpeed])
         return (1.0/DEFAULT_PETROL)*distance
                 
     def create(self, aLink):
-        return RoadNet_Action(self.optimumPetrolConsumption(aLink.speed,aLink.distance/1000.0),aLink.target)
+        return RoadNet_Action(self.optimumPetrolConsumption(aLink.speed,aLink.speed,aLink.distance/1000.0),aLink.target)
         #this is another bug...
         '''return ProblemAction(1.0/self.PetrolConsumption(aLink.speed) * \
                                   aLink.distance)

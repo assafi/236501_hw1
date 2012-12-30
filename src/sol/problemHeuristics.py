@@ -6,7 +6,7 @@ Created on Dec 26, 2012
 from src.sol.actionFactories import FuelSavingActionFactory
 from consts import SHORTEST_NORMALIZATION_FACTOR,\
     FASTEST_NORMALIZATION_FACTOR, ECO_NORMALIZATION_FACTOR,\
-    MAX_SPEED
+    MAX_SPEED,MIN_SPEED
 
 
 class ShortestRouteHeuristics():
@@ -25,7 +25,7 @@ class FuelSavingRouteHeuristics():
         distance = route_problem_state.route_map. \
             JunctionDistance(route_problem_state.junction_key, \
                              route_problem_state.goal_junction)
-        return FuelSavingActionFactory(route_problem_state.route_map).optimumPetrolConsumption(MAX_SPEED,distance)
+        return FuelSavingActionFactory(route_problem_state.route_map).optimumPetrolConsumption(MIN_SPEED,MAX_SPEED,distance)
 
 class HybridHeuristics():
     def __init__(self,alpha,beta):

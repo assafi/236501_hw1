@@ -40,7 +40,7 @@ class WeightedAStar (SearchAlgorithm):
         '''
         # This is the node evaluation function for the given heuristic.
         def evaluator(node):
-            return node.path_cost + heuristic.evaluate(node.state)
+            return (1.0-self.w)*node.path_cost + (self.w)*heuristic.evaluate(node.state)
     
         # This is a generator for the PriorityQueue we need.
         def queue_generator():

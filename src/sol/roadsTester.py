@@ -14,6 +14,10 @@ from searchStatistics import SearchStatistics
 from problemAgents import ShortestRouteAgent, FastestRouteAgent,\
     FuelSavingRouteAgent, HybridRouteAgent
 
+W_VALS_COUNT = 1
+W_VALS = W_VALS_COUNT + 1
+RUN5_HEURISTICS_COUNT = 4
+
 def add(header,name):
     header.append(name+' solutionDistance')
     header.append(name+' sumDistance')
@@ -22,6 +26,15 @@ def add(header,name):
     header.append(name+' callsToExpand')
     header.append(name+' cpuTime')
     header.append(name+' pathLength')
+
+def add5(header,name,):
+    header.append(name+' solutionDistance')
+    header.append(name+' callsToExpand')
+    
+    for w in map(lambda x: 1.0*x/W_VALS,xrange(1,W_VALS)):
+        header.append(name+ 'w_'+str(w)+'_distanceRatio')
+    for w in map(lambda x: 1.0*x/W_VALS,xrange(1,W_VALS)):
+        header.append(name+ 'w_'+str(w)+'_expandRatio')
     
 def writeLineToCsv(line,file2):
     #print line
@@ -68,7 +81,7 @@ class RoadsTester(object):
         Constructor
         '''
     def performRun4(self):
-        print 'starting run 4 b'
+        print 'starting run 4'
         #prepare written csv header
         file2 = open("results.csv", "w")
         header = list()
@@ -83,15 +96,9 @@ class RoadsTester(object):
             add(header,'hybrid2')
         
         writeLineToCsv(header, file2)
+        self.prepareProblems(self.max)
         for i in xrange(self.max):
-            #TODO: remove this is only to compare to Facebook
-            if self.problemKeys.has_key(i):
-                self.problem = self.problemKeys[i]
-            else:
-                self.problem = self.map.GenerateProblem()
-            while (False==self.isFeasibile()):
-                print 'no solution for ({0},{1})'.format(self.problem[0],self.problem[1])
-                self.problem = self.map.GenerateProblem()
+            self.problem = self.problemKeys[i]
             src = self.problem[0]
             dest = self.problem[1]
             print '({0},{1})'.format(src,dest)
@@ -126,62 +133,97 @@ class RoadsTester(object):
             writeLineToCsv(result, file2)
         print 'done'
         file2.close()
-        
-    def performRun5(self):
-        
-        #prepare written csv header
-        print 'starting run 5 b'
-        file2 = open("results.csv", "w")
-        header = list()
-        header.append('test#,src,dest,airDistance,w')
-        add(header,'shortest')
-        add(header,'fastest')
-        add(header,'economic1')
-        add(header,'hybrid1')
-        
-        writeLineToCsv(header, file2)
-        j=0
-        for w in map(lambda x: x/20.0,xrange(1,20)):
-            self.alg.setWeight(w)
-            #TODO: remove this is only to compare to Facebook
-            if self.problemKeys.has_key(j):
-                self.problem = self.problemKeys[j]
-            else:
+    def prepareProblems(self,count):
+        for i in xrange(1,count):
+            if not(i in self.problemKeys):
                 self.problem = self.map.GenerateProblem()
             while (False==self.isFeasibile()):
                     print 'no solution for ({0},{1})'.format(self.problem[0],self.problem[1])
                     self.problem = self.map.GenerateProblem()
-            src = self.problem[0]
-            dest = self.problem[1]
+            self.problemKeys = self.problem
+    def performRun5(self):
+        self.prepareProblems(self.max)
+        #prepare written csv header
+        print 'starting run 5'
+        file2 = open("results.csv", "w")
+        header = list()
+        header.append('test#,src,dest,airDistance')
+        add5(header,'shortest')
+        add5(header,'fastest')
+        add5(header,'economic1')
+        add5(header,'hybrid1')
+        
+        writeLineToCsv(header, file2)
+        
+        matrix = [[list() for x in xrange(W_VALS)] for x in xrange(self.max)] 
+        #init matrix[max][W_VALS]
+        j=0    
+        for w in map(lambda x: 1.0*x/W_VALS,xrange(1,W_VALS)):
+            self.alg.setWeight(w)
+            
             for i in xrange(self.max):
+                self.problem = self.problemKeys[i]
+                src = self.problem[0]
+                dest = self.problem[1]
                 print '({0},{1})'.format(src,dest)
-                result = list()
-                result.append(i)
-                result.append(src)
-                result.append(dest)
-                result.append(self.map.JunctionDistance(src,dest))
-                result.append(w)
                 #1
-                self.appendResult(result,self.findShortestRoute())
+                #self.appendResult(result,self.findShortestRoute())
+                res = list()
+                res += [self.extractResult(self.findShortestRoute())]
                 #2
-                self.appendResult(result,self.findFastestRoute())
+                res += [self.extractResult(self.findFastestRoute())]
+                #self.appendResult(result,self.findFastestRoute())
+                
                 
                 #3
                 self.map.car = self.car1
-                self.appendResult(result,self.findFuelSavingRoute())
+                #self.appendResult(result,self.findFuelSavingRoute())
+                res += [self.extractResult(self.findFuelSavingRoute())]
                 
-                #5
+                #4
                 self.map.car = self.car1
-                self.appendResult(result,self.findHybrid(0.3,0.3))
+                #self.appendResult(result,self.findHybrid(0.3,0.3))
+                res += [self.extractResult(self.findHybrid(0.3,0.3))]
                 
-                print i
-                writeLineToCsv(result, file2)
+                print res
+                matrix[i][j] = res
+                print 'matrix({0},{1})={2}'.format(i,j,matrix[i][j])
+
             print 'done' + str(w)
+            j= j+1
+        
+        
+        for i in xrange(self.max):
+            #matrix[i] all the runs for problem[i]
+            
+            #1 - sum2
+            #3 - callsToExpand
+            #[time,sum2,length2,callsToExpand,sumDistance,sumTime,sumFuel]
+            result = list()
+            result.append(i)
+            result.append(src)
+            result.append(dest)
+            result.append(self.map.JunctionDistance(src,dest))
+                
+            for j in xrange(RUN5_HEURISTICS_COUNT):
+                minSolDistance = min([matrix[i][w][j][1] for w in xrange(W_VALS_COUNT)])
+                minCallsToExpand = min([matrix[i][w][j][3] for w in xrange(W_VALS_COUNT)])
+                
+                solDistanceRatio = map(lambda x: x[j][1]/(1.0*minSolDistance),matrix[i])
+                callToExapndRatio = map(lambda x: x[j][3]/(1.0*minCallsToExpand),matrix[i])
+                
+                result.append(minSolDistance)
+                result.append(minCallsToExpand)
+                for x in solDistanceRatio:
+                    result.append(x)
+                for x in callToExapndRatio:
+                    result.append(x)
+            writeLineToCsv(result, file2)
         file2.close()
     def isFeasibile(self):
         answer = self.findShortestRoute()
         return answer!=None
-    def appendResult(self,list2,element):
+    def extractResult(self,element):
         time = self.elapsedTime()
         sum2 = sum(temp.getCost() for temp in element)
         length2 = len(element)
@@ -200,10 +242,12 @@ class RoadsTester(object):
         
         sumDistance = sum([getLink(self.map,i, j).distance for i, j in zip(pathKeys[:-1], pathKeys[1:])])
         sumTime = sum([(getLink(self.map,i, j).distance/1000.0)*(1.0/getLink(self.map, i, j).speed) for i, j in zip(pathKeys[:-1], pathKeys[1:])])
-
+        
         #this is only the fuel for the fastest (shortest) metric not for the economy (fuel saving) one...
         sumFuel = sum([(getLink(self.map,i, j).distance/1000.0)/CAR_PETROL_PROFILE[self.map.car][getLink(self.map, i, j).speed] for i, j in zip(pathKeys[:-1], pathKeys[1:])])
-        
+        return [time,sum2,length2,callsToExpand,sumDistance,sumTime,sumFuel]
+    def appendResult(self,list2,element):
+        [time,sum2,length2,callsToExpand,sumDistance,sumTime,sumFuel] = self.extractResult(element)
         list2.append(sum2 )#pathSum
         list2.append(sumDistance)
         list2.append(sumTime)

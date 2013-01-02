@@ -201,6 +201,8 @@ class RoadsTester(object):
             #[time,sum2,length2,callsToExpand,sumDistance,sumTime,sumFuel]
             result = list()
             result.append(i)
+            src = self.problemPoll[i][0]
+            dest = self.problemPoll[i][1]
             result.append(src)
             result.append(dest)
             result.append(self.map.JunctionDistance(src,dest))

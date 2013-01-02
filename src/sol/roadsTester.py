@@ -13,6 +13,7 @@ import math
 from searchStatistics import SearchStatistics
 from problemAgents import ShortestRouteAgent, FastestRouteAgent,\
     FuelSavingRouteAgent, HybridRouteAgent
+from src.sol.UpdatableAStarBaseline import AStarWithUpdatesBaseline
 
 W_VALS_COUNT = 20
 W_VALS = W_VALS_COUNT + 1
@@ -226,6 +227,36 @@ class RoadsTester(object):
                     result.append(x)
             writeLineToCsv(result, file2)
         file2.close()
+        
+    def performRun6(self):
+        print 'starting run 6'
+        #prepare written csv header
+        file2 = open("results_6.csv", "w")
+        header = list()
+        header.append('test#,src,dest,airDistance')
+        add(header,'complex')
+        add(header,'baseline')
+        
+        writeLineToCsv(header, file2)
+        for i in xrange(self.max):
+            self.problem = self.problemPoll[i]
+            src = self.problem[0]
+            dest = self.problem[1]
+            print '({0},{1})'.format(src,dest)
+            result = list()
+            result.append(i)
+            result.append(src)
+            result.append(dest)
+            result.append(self.map.JunctionDistance(src,dest))
+            #1
+            self.appendResult(result,self.findShortestRoute())
+            self.appendResult(result,self.findShortestWithUpdates_Baseline())
+            
+            print i
+            writeLineToCsv(result, file2)
+        print 'done'
+        file2.close()
+        
     def isFeasibile(self):
         answer = self.findShortestRoute()
         return answer!=None
@@ -250,7 +281,8 @@ class RoadsTester(object):
         sumTime = sum([(getLink(self.map,i, j).distance/1000.0)*(1.0/getLink(self.map, i, j).speed) for i, j in zip(pathKeys[:-1], pathKeys[1:])])
         
         #this is only the fuel for the fastest (shortest) metric not for the economy (fuel saving) one...
-        sumFuel = sum([(getLink(self.map,i, j).distance/1000.0)/CAR_PETROL_PROFILE[self.map.car][getLink(self.map, i, j).speed] for i, j in zip(pathKeys[:-1], pathKeys[1:])])
+#        sumFuel = sum([(getLink(self.map,i, j).distance/1000.0)/CAR_PETROL_PROFILE[self.map.car][int(getLink(self.map, i, j).speed)] for i, j in zip(pathKeys[:-1], pathKeys[1:])])
+        sumFuel = 0.0 #Not used
         return [time,sum2,length2,callsToExpand,sumDistance,sumTime,sumFuel]
     def appendResult(self,list2,element):
         [time,sum2,length2,callsToExpand,sumDistance,sumTime,sumFuel] = self.extractResult(element)
@@ -318,6 +350,17 @@ class RoadsTester(object):
                                           ,self.problem[1],self.statistics)
         
         agent = HybridRouteAgent(self.alg,alpha,beta)
+        answer = agent.solve(problem_state)
+        '''for n in answer:
+            print(n)
+        '''
+        return answer
+    
+    def findShortestWithUpdates_Baseline(self):
+        self.resetStatistics()        
+        problem_state = RoadNet_State(self.problem[0],self.map,\
+                                          ShortestActionFactory(),self.problem[1],self.statistics)
+        agent = ShortestRouteAgent(AStarWithUpdatesBaseline())
         answer = agent.solve(problem_state)
         '''for n in answer:
             print(n)

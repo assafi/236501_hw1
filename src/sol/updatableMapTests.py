@@ -11,30 +11,44 @@ from src.sol.UpdatableAStarComplex import AStarWithUpdatesComplex
 from src.osm_utils4 import CountryMap, DEFAULT_DB_FILE
 from src.sol.UpdatableAStarBaseline import AStarWithUpdatesBaseline
 import time
+from src.sol.roadsTester import RoadsTester
+
+MAX = 25
+car1= "Peugeot 508"
+car2= None
 
 class Test(unittest.TestCase):
 
-    def setUp(self):   
-        self.map = CountryMap()
-        self.map.LoadMap2("../../"+DEFAULT_DB_FILE)
-        self.problem = self.map.GenerateProblem()
+    def setUp(self):
+        self.helper = RoadsTester(MAX,car1,car2,AStarWithUpdatesComplex())
+
+    def tearDown(self):
+        pass
+        
+    def testRunAll(self):
+        self.helper.performRun6()
+
+#    def setUp(self):   
+#        self.map = CountryMap()
+#        self.map.LoadMap2("../../"+DEFAULT_DB_FILE)
+#        self.problem = self.map.GenerateProblem()
     
-    def testComplexUpdatableAStar(self):
-        for i in xrange(1,2):
-#            problem_state = RoadNet_State(self.problem[0],self.map,\
-#                                              ShortestActionFactory(),self.problem[1],None)
-            problem_state = RoadNet_State(918327,self.map,\
-                                              ShortestActionFactory(),572887,None)
-            start = time.clock()
-            agent = ShortestRouteAgent(AStarWithUpdatesComplex())
-            agent.solve(problem_state)
-            elapsed = time.clock() - start
-            print "Complex took: "+str(elapsed)
-            start = time.clock()
-            agent = ShortestRouteAgent(AStarWithUpdatesBaseline())
-            agent.solve(problem_state)
-            elapsed = time.clock() - start
-            print "Baseline took: "+str(elapsed)
+#    def testComplexUpdatableAStar(self):
+#        for i in xrange(1,2):
+##            problem_state = RoadNet_State(self.problem[0],self.map,\
+##                                              ShortestActionFactory(),self.problem[1],None)
+#            problem_state = RoadNet_State(918327,self.map,\
+#                                              ShortestActionFactory(),572887,None)
+#            start = time.clock()
+#            agent = ShortestRouteAgent(AStarWithUpdatesComplex())
+#            agent.solve(problem_state)
+#            elapsed = time.clock() - start
+#            print "Complex took: "+str(elapsed)
+#            start = time.clock()
+#            agent = ShortestRouteAgent(AStarWithUpdatesBaseline())
+#            agent.solve(problem_state)
+#            elapsed = time.clock() - start
+#            print "Baseline took: "+str(elapsed)
 
 #    def testBaselineUpdatableAStar(self):
 #        for i in xrange(1,2):

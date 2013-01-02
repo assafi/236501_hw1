@@ -136,6 +136,11 @@ class UpdatableGraphSearch (SearchAlgorithm):
         update_open_list = []
         while open_nodes and len(open_nodes) > 0:
             node = open_nodes.pop()
+            
+            '''This is more of a sanity check'''
+            if node.state not in known_nodes: 
+                continue
+            
             '''It is possible that due to the change a new path to the node is better than the current one'''
             if node.parent:
                 candidate_nodes = filter(lambda n: (not n.parent) or cmp(n.parent.state,node.parent.state) != 0, known_nodes[node.state])

@@ -7,7 +7,7 @@ import unittest
 from src.search.astar import AStar
 from roadsTester import RoadsTester
 
-MAX = 1
+MAX = 100
 car1= "Peugeot 508"
 car2= "Ford Focus"
 

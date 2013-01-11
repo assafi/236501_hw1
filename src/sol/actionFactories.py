@@ -23,7 +23,7 @@ class ShortestActionFactory(ActionFactory):
     
 class FastestActionFactory(ActionFactory):
     def create(self, aLink):
-        return RoadNet_Action((aLink.distance/1000.0) / \
+        return RoadNet_Action((aLink.distance/1.0) / \
                                  (aLink.speed),aLink.target)
 #bug: double(aLink.DefaultSpeed(aLink.highway_type)))
 
@@ -38,7 +38,7 @@ class FuelSavingActionFactory(ActionFactory):
         return (1.0/DEFAULT_PETROL)*distance
                 
     def create(self, aLink):
-        return RoadNet_Action(self.optimumPetrolConsumption(aLink.speed,aLink.speed,aLink.distance/1000.0),aLink.target)
+        return RoadNet_Action(self.optimumPetrolConsumption(aLink.speed,aLink.speed,aLink.distance/1.0),aLink.target)
         #this is another bug...
         '''return ProblemAction(1.0/self.PetrolConsumption(aLink.speed) * \
                                   aLink.distance)

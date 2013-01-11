@@ -13,18 +13,18 @@ class ShortestRouteHeuristics():
     def evaluate(self,route_problem_state):  
         return route_problem_state.route_map.\
             JunctionDistance(route_problem_state.junction_key,\
-                             route_problem_state.goal_junction)
+                             route_problem_state.goal_junction)*1000
 class FastestRouteHeuristics():     
     def evaluate(self,route_problem_state):
         return route_problem_state.route_map.\
             JunctionDistance(route_problem_state.junction_key,\
-                             route_problem_state.goal_junction) / (MAX_SPEED*1.0)
+                             route_problem_state.goal_junction)*1000 / (MAX_SPEED*1.0)
   
 class FuelSavingRouteHeuristics():
     def evaluate(self,route_problem_state):
         distance = route_problem_state.route_map. \
             JunctionDistance(route_problem_state.junction_key, \
-                             route_problem_state.goal_junction)
+                             route_problem_state.goal_junction)*1000
         return FuelSavingActionFactory(route_problem_state.route_map).optimumPetrolConsumption(MIN_SPEED,MAX_SPEED,distance)
 
 class HybridHeuristics():

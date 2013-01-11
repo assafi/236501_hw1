@@ -7,7 +7,7 @@ import unittest
 from roadsTester import RoadsTester
 from weightedAStar import WeightedAStar
 
-MAX = 20
+MAX = 40
 car1 = "Peugeot 508"
 car2 = None
 class Test(unittest.TestCase):

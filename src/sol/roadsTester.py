@@ -15,8 +15,8 @@ from problemAgents import ShortestRouteAgent, FastestRouteAgent,\
     FuelSavingRouteAgent, HybridRouteAgent
 from src.sol.UpdatableAStarBaseline import AStarWithUpdatesBaseline
 
-W_VALS_COUNT = 20
-W_VALS = W_VALS_COUNT + 1
+W_VALS_COUNT = 19
+W_VALS = W_VALS_COUNT+1
 RUN5_HEURISTICS_COUNT = 4
 
 def add(header,name):
@@ -155,30 +155,32 @@ class RoadsTester(object):
         
         writeLineToCsv(header, file2)
         
-        matrix = [[list() for x in xrange(W_VALS)] for x in xrange(self.max)] 
-        #init matrix[max][W_VALS]
+        matrix = [[list() for x in xrange(W_VALS_COUNT)] for x in xrange(self.max)] 
+        #init matrix[max][W_VALS+1]
         j=0    
         for w in map(lambda x: 1.0*x/W_VALS,xrange(1,W_VALS)):
             self.alg.setWeight(w)
-            
             for i in xrange(self.max):
                 self.problem = self.problemPoll[i]
                 src = self.problem[0]
                 dest = self.problem[1]
-                print '({0},{1})'.format(src,dest)
+                print '({0},{1},{2})'.format(src,dest,w)
                 #1
                 #self.appendResult(result,self.findShortestRoute())
                 res = list()
                 res += [self.extractResult(self.findShortestRoute())]
+                print 'shortest done'
                 #2
                 res += [self.extractResult(self.findFastestRoute())]
                 #self.appendResult(result,self.findFastestRoute())
                 
-                
+                print 'fastest done'
                 #3
                 self.map.car = self.car1
                 #self.appendResult(result,self.findFuelSavingRoute())
                 res += [self.extractResult(self.findFuelSavingRoute())]
+                
+                print 'eco done'
                 
                 #4
                 self.map.car = self.car1
@@ -217,6 +219,11 @@ class RoadsTester(object):
                 solDistanceRatio = map(lambda w: matrix[i][w][j][1]/(1.0*minSolDistance) ,xrange(W_VALS_COUNT))
                 callToExapndRatio = map(lambda w: matrix[i][w][j][3]/(1.0*minCallsToExpand) ,xrange(W_VALS_COUNT))
                 
+                print minSolDistance
+                print solDistanceRatio
+                
+                print minCallsToExpand
+                print callToExapndRatio
                 
                 #solDistanceRatio = map(lambda w: matrix[i][w][j][3] ,xrange(W_VALS_COUNT))
                 #callToExapndRatio = map(lambda x: x[j][3]/(1.0*minCallsToExpand),matrix[i])
@@ -282,9 +289,9 @@ class RoadsTester(object):
         sumDistance = sum([getLink(self.map,i, j).distance for i, j in zip(pathKeys[:-1], pathKeys[1:])])
         sumTime = sum([(getLink(self.map,i, j).distance/1000.0)*(1.0/getLink(self.map, i, j).speed) for i, j in zip(pathKeys[:-1], pathKeys[1:])])
         
-        #this is only the fuel for the fastest (shortest) metric not for the economy (fuel saving) one...
-#        sumFuel = sum([(getLink(self.map,i, j).distance/1000.0)/CAR_PETROL_PROFILE[self.map.car][int(getLink(self.map, i, j).speed)] for i, j in zip(pathKeys[:-1], pathKeys[1:])])
-        sumFuel = 0.0 #Not used
+        
+        sumFuel = sum([(getLink(self.map,i, j).distance/1000.0)/CAR_PETROL_PROFILE[self.map.car][int(getLink(self.map, i, j).speed)] for i, j in zip(pathKeys[:-1], pathKeys[1:])])
+        #sumFuel = 0.0 #Not used
         return [time,sum2,length2,callsToExpand,sumDistance,sumTime,sumFuel]
     def appendResult(self,list2,element):
         [time,sum2,length2,callsToExpand,sumDistance,sumTime,sumFuel] = self.extractResult(element)

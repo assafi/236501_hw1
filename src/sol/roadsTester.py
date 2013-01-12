@@ -290,8 +290,8 @@ class RoadsTester(object):
         sumTime = sum([(getLink(self.map,i, j).distance/1000.0)*(1.0/getLink(self.map, i, j).speed) for i, j in zip(pathKeys[:-1], pathKeys[1:])])
         
         
-        sumFuel = sum([(getLink(self.map,i, j).distance/1000.0)/CAR_PETROL_PROFILE[self.map.car][int(getLink(self.map, i, j).speed)] for i, j in zip(pathKeys[:-1], pathKeys[1:])])
-        #sumFuel = 0.0 #Not used
+        #sumFuel = sum([(getLink(self.map,i, j).distance/1000.0)/CAR_PETROL_PROFILE[self.map.car][int(getLink(self.map, i, j).speed)] for i, j in zip(pathKeys[:-1], pathKeys[1:])])
+        sumFuel = 0.0 #Not used
         return [time,sum2,length2,callsToExpand,sumDistance,sumTime,sumFuel]
     def appendResult(self,list2,element):
         [time,sum2,length2,callsToExpand,sumDistance,sumTime,sumFuel] = self.extractResult(element)

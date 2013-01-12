@@ -93,7 +93,10 @@ class UpdatableGraphSearch (SearchAlgorithm):
         
         while open_nodes and len(open_nodes) > 0:
             updated_links = m.GetSpeedUpdates(traversed_links)
-            for ul in updated_links:
+            
+            if len(updated_links) > 0:
+                ul = updated_links[0]
+#            for ul in updated_links:
                 junction_key = ul[LINK_ID][0]
                 node = closed_states[junction_key][0]
                 self.updateLink(node.state,ul)
